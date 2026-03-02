@@ -1,0 +1,39 @@
+info:
+  name: Register User
+  type: http
+  seq: 1
+
+http:
+  method: POST
+  url: "{{baseUrl}}auth/register"
+  headers:
+    - name: Content-Type
+      value: application/json
+  body:
+    type: json
+    data: |
+      {
+        "name": "{{process.env.name}}",
+        "email": "{{process.env.email}}",
+        "password": "{{process.env.password}}",
+        "role": "{{process.env.role}}"
+      }
+  auth: inherit
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        if (res.getStatus() === 201) {
+          const email = bru.getProcessEnv("email");
+          const password = bru.getProcessEnv("password");
+          bru.setVar("loginEmail", email);
+          bru.setVar("loginPassword", password);
+          console.log("Credentials synced to login: " + email);
+        }
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
