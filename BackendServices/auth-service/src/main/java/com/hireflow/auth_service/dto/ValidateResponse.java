@@ -13,4 +13,6 @@ public class ValidateResponse {
     private boolean valid;
     private String userId;
     private String role;
+    private String email;
+    private String name;
 }

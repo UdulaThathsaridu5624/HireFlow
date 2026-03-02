@@ -1,12 +1,10 @@
 package com.hireflow.auth_service.controller;
 
-import com.hireflow.auth_service.dto.AuthResponse;
-import com.hireflow.auth_service.dto.LoginRequest;
-import com.hireflow.auth_service.dto.RegisterRequest;
-import com.hireflow.auth_service.dto.ValidateResponse;
+import com.hireflow.auth_service.dto.*;
 import com.hireflow.auth_service.service.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,7 +17,7 @@ public class AuthController {
     @PostMapping("/register")
     public ResponseEntity<AuthResponse> registerUser(@Valid @RequestBody RegisterRequest registerRequest){
         AuthResponse authResponse = authService.register(registerRequest);
-        return ResponseEntity.ok(authResponse);
+        return ResponseEntity.status(HttpStatus.CREATED).body(authResponse);
     }
     @PostMapping("/login")
 
@@ -30,14 +28,29 @@ public class AuthController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/validate")
+    @PostMapping("/refresh")
+    public ResponseEntity<AuthResponse> refresh(
+            @Valid @RequestBody RefreshTokenRequest request) {
+        return ResponseEntity.ok(
+                authService.refreshAccessToken(request.getRefreshToken())
+        );
+    }
 
+    @PostMapping("/logout")
+    public ResponseEntity<Void> logout(
+            @Valid @RequestBody RefreshTokenRequest request) {
+        authService.logout(request.getRefreshToken());
+        return ResponseEntity.noContent().build();
+    }
+    @GetMapping("/validate")
     public ResponseEntity<ValidateResponse> validate(
             @RequestHeader("Authorization") String authHeader) {
 
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
 
-        String token = authHeader.replace("Bearer ", "");
-
+        String token = authHeader.substring(7);
         ValidateResponse response = authService.validate(token);
         return ResponseEntity.ok(response);
     }
