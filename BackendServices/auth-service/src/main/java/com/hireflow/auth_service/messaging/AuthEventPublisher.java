@@ -19,13 +19,13 @@ public class AuthEventPublisher {
     private final RabbitTemplate rabbitTemplate;
 
     public void publishUserRegistered(User user) {
-        Map<String, Object> message = buildMessage("user.registered", user);
-        rabbitTemplate.convertAndSend(RabbitMQConfig.HIREFLOW_EXCHANGE, "user.registered", message);
+        Map<String, Object> message = buildMessage(RabbitMQConfig.ROUTING_USER_REGISTERED, user);
+        rabbitTemplate.convertAndSend(RabbitMQConfig.HIREFLOW_EXCHANGE, RabbitMQConfig.ROUTING_USER_REGISTERED, message);
     }
 
     public void publishUserLoggedIn(User user) {
-        Map<String, Object> message = buildMessage("user.loggedIn", user);
-        rabbitTemplate.convertAndSend(RabbitMQConfig.HIREFLOW_EXCHANGE, "user.loggedIn", message);
+        Map<String, Object> message = buildMessage(RabbitMQConfig.ROUTING_USER_LOGGED_IN, user);
+        rabbitTemplate.convertAndSend(RabbitMQConfig.HIREFLOW_EXCHANGE, RabbitMQConfig.ROUTING_USER_LOGGED_IN, message);
     }
 
     private Map<String, Object> buildMessage(String eventType, User user) {
