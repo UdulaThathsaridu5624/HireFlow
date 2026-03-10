@@ -1,0 +1,12 @@
+name: auth
+variables:
+  - secret: true
+    name: Bearer_token
+  - name: baseUrl
+    value: http://localhost:8080/api/
+  - name: loginEmail
+    value: ""
+  - name: loginPassword
+    value: ""
+  - name: refreshToken
+    value: ""
