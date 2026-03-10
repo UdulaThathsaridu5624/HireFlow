@@ -12,6 +12,18 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: BackendServices/interview-service/package-lock.json
+      - name: Install dependencies
+        run: npm ci
+        working-directory: BackendServices/interview-service
+      - name: Run tests with coverage
+        run: npm run test:cov
+        working-directory: BackendServices/interview-service
       - name: SonarCloud Scan
         uses: SonarSource/sonarqube-scan-action@v6
         with:
