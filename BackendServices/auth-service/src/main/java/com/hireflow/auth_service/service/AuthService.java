@@ -6,6 +6,7 @@ import com.hireflow.auth_service.dto.RegisterRequest;
 import com.hireflow.auth_service.dto.ValidateResponse;
 import com.hireflow.auth_service.exception.ConflictException;
 import com.hireflow.auth_service.exception.UnauthorizedException;
+import com.hireflow.auth_service.messaging.AuthEventPublisher;
 import com.hireflow.auth_service.model.RefreshToken;
 import com.hireflow.auth_service.model.User;
 import com.hireflow.auth_service.repository.RefreshTokenRepository;
@@ -29,6 +30,8 @@ public class AuthService {
 
     private final RefreshTokenRepository refreshTokenRepository;
 
+    private final AuthEventPublisher authEventPublisher;
+
     public AuthResponse register(RegisterRequest registerRequest){
         if(userRepository.existsByEmail(registerRequest.getEmail())){
             throw new ConflictException("Email already exists");
@@ -42,6 +45,7 @@ public class AuthService {
                 .build();
 
         userRepository.save(user);
+        authEventPublisher.publishUserRegistered(user);
 
         String token = jwtService.generateToken(user);
         RefreshToken refreshToken = refreshTokenService.createRefreshToken(user);
@@ -65,7 +69,7 @@ public class AuthService {
         }
         String token = jwtService.generateToken(user);
         RefreshToken refreshToken = refreshTokenService.createRefreshToken(user);
-
+        authEventPublisher.publishUserLoggedIn(user);
         return AuthResponse.builder()
                 .token(token)
                 .refreshToken(refreshToken.getToken())
@@ -73,6 +77,7 @@ public class AuthService {
                 .name(user.getName())
                 .role(user.getRole().name())
                 .build();
+
     }
 
     public AuthResponse refreshAccessToken(String token) {
