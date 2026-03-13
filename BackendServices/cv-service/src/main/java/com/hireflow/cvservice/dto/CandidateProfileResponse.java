@@ -8,8 +8,10 @@ public record CandidateProfileResponse(
         UUID userId,
         String bio,
         String location,
+        String linkedinUrl,
         List<SkillResponse> skills,
         List<EducationResponse> education,
-        List<WorkExperienceResponse> workExperience
+        List<WorkExperienceResponse> workExperience,
+        List<ResumeResponse> resumes
 ) {
 }

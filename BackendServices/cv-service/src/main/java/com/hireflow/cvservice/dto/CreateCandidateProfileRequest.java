@@ -6,9 +6,11 @@ public class CreateCandidateProfileRequest {
 
     private String bio;
     private String location;
+    private String linkedinUrl;
     private List<SkillRequest> skills;
     private List<EducationRequest> education;
     private List<WorkExperienceRequest> workExperience;
+    private List<ResumeRequest> resumes;
 
     public String getBio() {
         return bio;
@@ -24,6 +26,14 @@ public class CreateCandidateProfileRequest {
 
     public void setLocation(String location) {
         this.location = location;
+    }
+
+    public String getLinkedinUrl() {
+        return linkedinUrl;
+    }
+
+    public void setLinkedinUrl(String linkedinUrl) {
+        this.linkedinUrl = linkedinUrl;
     }
 
     public List<SkillRequest> getSkills() {
@@ -48,5 +58,13 @@ public class CreateCandidateProfileRequest {
 
     public void setWorkExperience(List<WorkExperienceRequest> workExperience) {
         this.workExperience = workExperience;
+    }
+
+    public List<ResumeRequest> getResumes() {
+        return resumes;
+    }
+
+    public void setResumes(List<ResumeRequest> resumes) {
+        this.resumes = resumes;
     }
 }

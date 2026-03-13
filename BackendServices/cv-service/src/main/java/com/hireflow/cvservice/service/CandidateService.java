@@ -3,21 +3,25 @@ package com.hireflow.cvservice.service;
 import com.hireflow.cvservice.dto.CreateCandidateProfileRequest;
 import com.hireflow.cvservice.dto.CandidateProfileResponse;
 import com.hireflow.cvservice.dto.EducationResponse;
+import com.hireflow.cvservice.dto.ResumeResponse;
 import com.hireflow.cvservice.dto.SkillResponse;
 import com.hireflow.cvservice.dto.WorkExperienceResponse;
 import com.hireflow.cvservice.model.Candidate;
 import com.hireflow.cvservice.model.CandidateSkill;
 import com.hireflow.cvservice.model.Education;
+import com.hireflow.cvservice.model.Resume;
 import com.hireflow.cvservice.model.Skill;
 import com.hireflow.cvservice.model.WorkExperience;
 import com.hireflow.cvservice.repository.CandidateSkillRepository;
 import com.hireflow.cvservice.repository.CandidateRepository;
 import com.hireflow.cvservice.repository.EducationRepository;
+import com.hireflow.cvservice.repository.ResumeRepository;
 import com.hireflow.cvservice.repository.SkillRepository;
 import com.hireflow.cvservice.repository.WorkExperienceRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
@@ -31,17 +35,20 @@ public class CandidateService {
     private final SkillRepository skillRepository;
     private final EducationRepository educationRepository;
     private final WorkExperienceRepository workExperienceRepository;
+    private final ResumeRepository resumeRepository;
 
     public CandidateService(CandidateRepository candidateRepository,
                             CandidateSkillRepository candidateSkillRepository,
                             SkillRepository skillRepository,
                             EducationRepository educationRepository,
-                            WorkExperienceRepository workExperienceRepository) {
+                            WorkExperienceRepository workExperienceRepository,
+                            ResumeRepository resumeRepository) {
         this.candidateRepository = candidateRepository;
         this.candidateSkillRepository = candidateSkillRepository;
         this.skillRepository = skillRepository;
         this.educationRepository = educationRepository;
         this.workExperienceRepository = workExperienceRepository;
+        this.resumeRepository = resumeRepository;
     }
 
     public CandidateProfileResponse upsertProfile(UUID userId, CreateCandidateProfileRequest request) {
@@ -51,16 +58,19 @@ public class CandidateService {
         candidate.setUserId(userId);
         candidate.setBio(request.getBio());
         candidate.setLocation(request.getLocation());
+        candidate.setLinkedinUrl(request.getLinkedinUrl());
 
         candidate = candidateRepository.save(candidate);
 
         candidateSkillRepository.deleteAllByCandidateId(candidate.getId());
         educationRepository.deleteAllByCandidateId(candidate.getId());
         workExperienceRepository.deleteAllByCandidateId(candidate.getId());
+        resumeRepository.deleteAllByCandidateId(candidate.getId());
 
         saveSkills(candidate, request);
         saveEducation(candidate, request);
         saveWorkExperience(candidate, request);
+        saveResumes(candidate, request);
 
         return getCandidateProfile(candidate.getId());
     }
@@ -109,14 +119,25 @@ public class CandidateService {
                         entry.getDescription()))
                 .toList();
 
+                List<ResumeResponse> resumes = resumeRepository.findByCandidateId(candidateId)
+                    .stream()
+                    .map(entry -> new ResumeResponse(
+                        entry.getFileUrl(),
+                        entry.getFileName(),
+                        entry.getIsDefault(),
+                        entry.getUploadedAt()))
+                    .toList();
+
         return new CandidateProfileResponse(
                 candidate.getId(),
                 candidate.getUserId(),
                 candidate.getBio(),
                 candidate.getLocation(),
+            candidate.getLinkedinUrl(),
                 skills,
                 education,
-                workExperience);
+                workExperience,
+                resumes);
     }
 
     @Transactional(readOnly = true)
@@ -169,6 +190,18 @@ public class CandidateService {
             workExperience.setCurrentlyWorking(workExperienceRequest.currentlyWorking());
             workExperience.setDescription(workExperienceRequest.description());
             workExperienceRepository.save(workExperience);
+        }
+    }
+
+    private void saveResumes(Candidate candidate, CreateCandidateProfileRequest request) {
+        for (var resumeRequest : safeList(request.getResumes())) {
+            Resume resume = new Resume();
+            resume.setCandidateId(candidate.getId());
+            resume.setFileUrl(resumeRequest.fileUrl());
+            resume.setFileName(resumeRequest.fileName());
+            resume.setIsDefault(Boolean.TRUE.equals(resumeRequest.isDefault()));
+            resume.setUploadedAt(LocalDateTime.now());
+            resumeRepository.save(resume);
         }
     }
 
