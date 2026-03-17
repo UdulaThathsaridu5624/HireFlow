@@ -1,0 +1,27 @@
+info:
+  name: Update Interview
+  type: http
+  seq: 8
+
+http:
+  method: PATCH
+  url: "{{interviewBaseUrl}}api/interviews/{{interviewId}}"
+  headers:
+    - name: Content-Type
+      value: application/json
+    - name: Authorization
+      value: "Bearer {{Bearer_token}}"
+  body:
+    type: json
+    data: |-
+      {
+        "scheduledAt": "2026-04-02T14:00:00Z",
+        "notes": "Rescheduled to afternoon"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

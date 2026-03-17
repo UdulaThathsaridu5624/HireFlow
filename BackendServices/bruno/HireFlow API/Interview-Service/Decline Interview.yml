@@ -1,0 +1,18 @@
+info:
+  name: Decline Interview
+  type: http
+  seq: 10
+
+http:
+  method: PATCH
+  url: "{{interviewBaseUrl}}api/interviews/{{interviewId}}/decline"
+  headers:
+    - name: Authorization
+      value: "Bearer {{Bearer_token}}"
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
