@@ -1,0 +1,29 @@
+info:
+  name: Create Pipeline
+  type: http
+  seq: 1
+
+http:
+  method: POST
+  url: "{{interviewBaseUrl}}api/pipelines"
+  headers:
+    - name: Content-Type
+      value: application/json
+    - name: Authorization
+      value: "Bearer {{Bearer_token}}"
+  body:
+    type: json
+    data: |-
+      {
+        "applicationId": "app-001",
+        "jobId": "job-001",
+        "candidateId": "candidate-uuid-here",
+        "employerId": "employer-uuid-here"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
