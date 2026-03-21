@@ -2,6 +2,8 @@ package com.ctse.profileservice.service;
 
 import com.ctse.profileservice.entity.EmployerAnalytics;
 import com.ctse.profileservice.repository.EmployerAnalyticsRepository;
+import com.ctse.profileservice.repository.companyRepository;
+import com.ctse.profileservice.entity.Company;
 import lombok.RequiredArgsConstructor;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Service;
@@ -12,7 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class EmployerAnalyticsService {
 
     private final EmployerAnalyticsRepository analyticsRepository;
-    private final companyService companyService;
+    private final companyRepository companyRepository;
 
     public EmployerAnalytics getAnalytics(Long companyId) {
         return analyticsRepository.findByCompanyId(companyId)
@@ -31,7 +33,7 @@ public class EmployerAnalyticsService {
         EmployerAnalytics analytics = getAnalytics(companyId);
         analytics.setProfileViews(analytics.getProfileViews() + 1);
         analyticsRepository.save(analytics);
-        companyService.updateReputation(companyId);
+        updateReputation(companyId);
     }
 
     @Transactional
@@ -39,7 +41,7 @@ public class EmployerAnalyticsService {
         EmployerAnalytics analytics = getAnalytics(companyId);
         analytics.setFollowersCount(count);
         analyticsRepository.save(analytics);
-        companyService.updateReputation(companyId);
+        updateReputation(companyId);
     }
 
     @RabbitListener(queues = "job-post-events")
@@ -48,7 +50,7 @@ public class EmployerAnalyticsService {
         EmployerAnalytics analytics = getAnalytics(companyId);
         analytics.setJobPosts(analytics.getJobPosts() + 1);
         analyticsRepository.save(analytics);
-        companyService.updateReputation(companyId);
+        updateReputation(companyId);
     }
 
     @RabbitListener(queues = "application-events")
@@ -57,6 +59,23 @@ public class EmployerAnalyticsService {
         EmployerAnalytics analytics = getAnalytics(companyId);
         analytics.setApplicationsReceived(analytics.getApplicationsReceived() + 1);
         analyticsRepository.save(analytics);
-        companyService.updateReputation(companyId);
+        updateReputation(companyId);
+    }
+
+    @Transactional
+    public void updateReputation(Long companyId) {
+        Company company = companyRepository.findById(companyId).orElse(null);
+        if (company == null)
+            return;
+
+        analyticsRepository.findByCompanyId(companyId).ifPresent(analytics -> {
+            double score = (analytics.getFollowersCount() * 10) +
+                    (analytics.getJobPosts() * 5) +
+                    (analytics.getApplicationsReceived() * 2) +
+                    (analytics.getProfileViews() * 0.1);
+
+            company.setReputationScore(score);
+            companyRepository.save(company);
+        });
     }
 }

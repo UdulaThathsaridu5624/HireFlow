@@ -8,7 +8,6 @@ import com.ctse.profileservice.entity.Company;
 import com.ctse.profileservice.entity.CompanyCultureTag;
 import com.ctse.profileservice.repository.companyRepository;
 import com.ctse.profileservice.repository.culturalTagRepository;
-import com.ctse.profileservice.repository.EmployerAnalyticsRepository;
 import com.ctse.profileservice.config.RabbitConfig;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,40 +23,15 @@ public class companyService {
     private final AzureBlobStorageService azureBlobStorageService;
     private final RabbitTemplate rabbitTemplate;
     private final companyFollowerService companyFollowerService;
-    private final EmployerAnalyticsRepository analyticsRepository;
 
     public companyService(companyRepository companyRepository, culturalTagRepository culturalTagRepository,
             AzureBlobStorageService azureBlobStorageService, RabbitTemplate rabbitTemplate,
-            companyFollowerService companyFollowerService, EmployerAnalyticsRepository analyticsRepository) {
+            companyFollowerService companyFollowerService) {
         this.companyRepository = companyRepository;
         this.culturalTagRepository = culturalTagRepository;
         this.azureBlobStorageService = azureBlobStorageService;
         this.rabbitTemplate = rabbitTemplate;
         this.companyFollowerService = companyFollowerService;
-        this.analyticsRepository = analyticsRepository;
-    }
-
-    @Transactional
-    public void updateReputation(Long companyId) {
-        Company company = companyRepository.findById(companyId).orElse(null);
-        if (company == null)
-            return;
-
-        analyticsRepository.findByCompanyId(companyId).ifPresent(analytics -> {
-            // Formula:
-            // - Each follower: 10 points
-            // - Each job post: 5 points
-            // - Each application received: 2 points
-            // - Each profile view: 0.1 points (capped or scaled)
-
-            double score = (analytics.getFollowersCount() * 10) +
-                    (analytics.getJobPosts() * 5) +
-                    (analytics.getApplicationsReceived() * 2) +
-                    (analytics.getProfileViews() * 0.1);
-
-            company.setReputationScore(score);
-            companyRepository.save(company);
-        });
     }
 
     public Company createCompany(createCompanyDto request, String logoUrl) {
