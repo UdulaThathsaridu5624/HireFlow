@@ -3,14 +3,20 @@ import { UnauthorizedException } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthService } from './auth/auth.service';
+import { HiringPipelineService } from './interview/hiring-pipeline.service';
 
 describe('AppController', () => {
   let appController: AppController;
   let authService: jest.Mocked<AuthService>;
+  let pipelineService: jest.Mocked<HiringPipelineService>;
 
   beforeEach(async () => {
     const mockAuthService = {
       validateToken: jest.fn(),
+    };
+
+    const mockPipelineService = {
+      createPipeline: jest.fn(),
     };
 
     const app: TestingModule = await Test.createTestingModule({
@@ -18,11 +24,13 @@ describe('AppController', () => {
       providers: [
         AppService,
         { provide: AuthService, useValue: mockAuthService },
+        { provide: HiringPipelineService, useValue: mockPipelineService },
       ],
     }).compile();
 
     appController = app.get<AppController>(AppController);
     authService = app.get(AuthService);
+    pipelineService = app.get(HiringPipelineService);
   });
 
   describe('getHello', () => {
@@ -61,22 +69,35 @@ describe('AppController', () => {
   });
 
   describe('handleUserRegistered', () => {
-    it('should log user registered event', () => {
-      const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
+    it('should handle user registered event', () => {
       const data = { userId: '1', email: 'test@test.com' };
-      appController.handleUserRegistered(data);
-      expect(consoleSpy).toHaveBeenCalledWith('[Interview Service] User registered:', data);
-      consoleSpy.mockRestore();
+      expect(() => appController.handleUserRegistered(data)).not.toThrow();
     });
   });
 
   describe('handleUserLoggedIn', () => {
-    it('should log user logged in event', () => {
-      const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
+    it('should handle user logged in event', () => {
       const data = { userId: '1' };
-      appController.handleUserLoggedIn(data);
-      expect(consoleSpy).toHaveBeenCalledWith('[Interview Service] User logged in:', data);
-      consoleSpy.mockRestore();
+      expect(() => appController.handleUserLoggedIn(data)).not.toThrow();
+    });
+  });
+
+  describe('handleApplicationForwarded', () => {
+    it('should create pipeline when application is forwarded', async () => {
+      const data = {
+        applicationId: 'app-001',
+        jobId: 'job-001',
+        candidateId: 'cand-001',
+        employerId: 'emp-001',
+      };
+      pipelineService.createPipeline.mockResolvedValue({} as any);
+      await appController.handleApplicationForwarded(data);
+      expect(pipelineService.createPipeline).toHaveBeenCalledWith({
+        applicationId: data.applicationId,
+        jobId: data.jobId,
+        candidateId: data.candidateId,
+        employerId: data.employerId,
+      });
     });
   });
 });

@@ -1,14 +1,18 @@
-import { Controller, Get, Headers, UnauthorizedException } from '@nestjs/common';
+import { Controller, Get, Headers, Logger, UnauthorizedException } from '@nestjs/common';
 import { EventPattern, Payload } from '@nestjs/microservices';
 import { AppService } from './app.service';
 import { AuthService } from './auth/auth.service';
-import { AuthEvents } from './constants';
+import { AuthEvents, InterviewEvents } from './constants';
+import { HiringPipelineService } from './interview/hiring-pipeline.service';
 
 @Controller()
 export class AppController {
+  private readonly logger = new Logger(AppController.name);
+
   constructor(
     private readonly appService: AppService,
     private readonly authService: AuthService,
+    private readonly pipelineService: HiringPipelineService,
   ) {}
 
   @Get()
@@ -31,11 +35,22 @@ export class AppController {
 
   @EventPattern(AuthEvents.USER_REGISTERED)
   handleUserRegistered(@Payload() data: any) {
-    console.log('[Interview Service] User registered:', data);
+    this.logger.log(`User registered: ${JSON.stringify(data)}`);
   }
 
   @EventPattern(AuthEvents.USER_LOGGED_IN)
   handleUserLoggedIn(@Payload() data: any) {
-    console.log('[Interview Service] User logged in:', data);
+    this.logger.log(`User logged in: ${JSON.stringify(data)}`);
+  }
+
+  @EventPattern(InterviewEvents.APPLICATION_FORWARDED)
+  async handleApplicationForwarded(@Payload() data: any) {
+    this.logger.log(`Application forwarded, creating pipeline: ${JSON.stringify(data)}`);
+    await this.pipelineService.createPipeline({
+      applicationId: data.applicationId,
+      jobId: data.jobId,
+      candidateId: data.candidateId,
+      employerId: data.employerId,
+    });
   }
 }
