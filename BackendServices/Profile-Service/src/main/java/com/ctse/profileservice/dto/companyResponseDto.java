@@ -17,4 +17,6 @@ public class companyResponseDto {
     private String logoUrl;
     private Double reputationScore;
     private List<String> cultureTags;
+    private Long followersCount;
+    private boolean isFollowedByMe;
 }
