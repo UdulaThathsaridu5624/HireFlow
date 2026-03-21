@@ -20,33 +20,32 @@ public class Company {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long Id;
+    private Long id;
 
     @Column(unique = true, nullable = false)
-    private Long EmployeeId;
+    private String employeeId;
 
-    private String CompanyName;
-    private String Location;
-    private String Industry;
+    private String companyName;
+    private String location;
+    private String industry;
 
     @Column(length = 2000)
-    private String Background;
+    private String background;
 
-    private String Website;
+    private String website;
+    private String logoUrl;
     private Double reputationScore = 0.0;
     private Boolean isDeleted = false;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
     @PrePersist
-    protected void onCreate()
-    {
+    protected void onCreate() {
         this.createdAt = LocalDateTime.now();
     }
 
     @PreUpdate
-    protected void onUpdate()
-    {
+    protected void onUpdate() {
         this.updatedAt = LocalDateTime.now();
     }
 }
