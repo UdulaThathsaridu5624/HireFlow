@@ -50,6 +50,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: >
           mvn -B org.sonarsource.scanner.maven:sonar-maven-plugin:sonar 
-          -Dsonar.projectKey=UdulaThathsaridu5624_HireFlow_ProfileService 
+          -Dsonar.projectKey=UdulaThathsaridu5624_HireFlow
           -Dsonar.organization=udulathathsaridu5624
         working-directory: BackendServices/Profile-Service
