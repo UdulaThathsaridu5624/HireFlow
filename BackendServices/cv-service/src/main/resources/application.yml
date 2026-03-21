@@ -2,6 +2,8 @@ server:
   port: ${SERVER_PORT:8081}
 
 spring:
+  config:
+    import: optional:file:.env[.properties],optional:file:./BackendServices/cv-service/.env[.properties]
   application:
     name: cv-service
 
@@ -10,6 +12,13 @@ spring:
     username: ${DB_USER:postgres}
     password: ${DB_PASSWORD:postgres}
     driver-class-name: org.postgresql.Driver
+    hikari:
+      pool-name: cvServiceHikariPool
+      maximum-pool-size: ${DB_MAX_POOL_SIZE:3}
+      minimum-idle: ${DB_MIN_IDLE:0}
+      idle-timeout: ${DB_IDLE_TIMEOUT_MS:30000}
+      max-lifetime: ${DB_MAX_LIFETIME_MS:300000}
+      connection-timeout: ${DB_CONNECTION_TIMEOUT_MS:30000}
 
   rabbitmq:
     host: ${RABBITMQ_HOST:localhost}
@@ -38,6 +47,8 @@ app:
   messaging:
     exchange: ${APP_MESSAGING_EXCHANGE:hireflow.exchange}
     application-forwarded-routing-key: ${APP_MESSAGING_APPLICATION_FORWARDED_ROUTING_KEY:application.forwarded}
+  resume:
+    storage-path: ${APP_RESUME_STORAGE_PATH:uploads/resumes}
 
 logging:
   level:
