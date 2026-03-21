@@ -2,8 +2,12 @@ name: SonarCloud - Interview Service
 on:
   push:
     branches: [main, develop]
+    paths:
+      - "BackendServices/interview-service/**"
   pull_request:
     types: [opened, synchronize, reopened]
+    paths:
+      - "BackendServices/interview-service/**"
 jobs:
   sonarqube:
     name: SonarQube
