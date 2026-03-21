@@ -1,7 +1,9 @@
 name: SonarCloud - CV Service
 on:
   push:
-    branches: [main, develop]
+    branches: [main, develop]  
+  paths:
+  - 'BackendServices/cv-service/**'
   pull_request:
     types: [opened, synchronize, reopened]
 jobs:
@@ -22,7 +24,9 @@ jobs:
         run: mvn -B verify
         working-directory: BackendServices/cv-service
       - name: SonarCloud Scan
-        run: mvn -B org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=UdulaThathsaridu5624_HireFlow
+        run: mvn -B org.sonarsource.scanner.maven:sonar-maven-plugin:sonar 
+          -Dsonar.projectKey=UdulaThathsaridu5624_HireFlow
+          -Dsonar.organization=udulathathsaridu5624
         working-directory: BackendServices/cv-service
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
