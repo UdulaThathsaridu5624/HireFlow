@@ -11,12 +11,9 @@ on:
       - "BackendServices/Profile-Service/**"
 
 jobs:
-  build:
-    name: Build and analyze
+  sonarqube:
+    name: SonarQube
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: BackendServices/Profile-Service
 
     steps:
       - uses: actions/checkout@v4
@@ -43,7 +40,16 @@ jobs:
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
 
-      - name: Build, test and analyze
+      - name: Install dependencies and Run tests
+        run: mvn -B clean verify
+        working-directory: BackendServices/Profile-Service
+
+      - name: SonarCloud Scan
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=UdulaThathsaridu5624_HireFlow_ProfileService -Dsonar.organization=udulathathsaridu5624
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: >
+          mvn -B org.sonarsource.scanner.maven:sonar-maven-plugin:sonar 
+          -Dsonar.projectKey=UdulaThathsaridu5624_HireFlow_ProfileService 
+          -Dsonar.organization=udulathathsaridu5624
+        working-directory: BackendServices/Profile-Service
