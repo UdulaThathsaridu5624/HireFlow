@@ -16,10 +16,14 @@ import java.util.Map;
 public class RabbitConfig {
 
     // ─────────────────────────────────────────
-    // COMPANY (existing)
+    // COMPANY INTEGRATION (Job Service, etc.)
     // ─────────────────────────────────────────
-    public static final String COMPANY_EXCHANGE = "company.exchange";
+    public static final String COMPANY_EXCHANGE = "company-exchange";
+    public static final String COMPANY_CREATED_ROUTING_KEY = "company.created";
     public static final String ANALYTIC_QUEUE = "company.analytic.queue";
+    public static final String JOB_SERVICE_COMPANY_QUEUE = "job-service-company-queue";
+    public static final String JOB_POST_EVENTS_QUEUE = "job-post-events";
+    public static final String APPLICATION_EVENTS_QUEUE = "application-events";
 
     @Bean
     public TopicExchange companyExchange() {
@@ -32,10 +36,32 @@ public class RabbitConfig {
     }
 
     @Bean
+    public Queue jobServiceQueue() {
+        return new Queue(JOB_SERVICE_COMPANY_QUEUE, true);
+    }
+
+    @Bean
+    public Queue jobPostEventsQueue() {
+        return new Queue(JOB_POST_EVENTS_QUEUE, true);
+    }
+
+    @Bean
+    public Queue applicationEventsQueue() {
+        return new Queue(APPLICATION_EVENTS_QUEUE, true);
+    }
+
+    @Bean
     public Binding analyticBinding(Queue analyticQueue, TopicExchange companyExchange) {
         return BindingBuilder.bind(analyticQueue)
                 .to(companyExchange)
                 .with("application.submitted");
+    }
+
+    @Bean
+    public Binding jobServiceBinding(Queue jobServiceQueue, TopicExchange companyExchange) {
+        return BindingBuilder.bind(jobServiceQueue)
+                .to(companyExchange)
+                .with(COMPANY_CREATED_ROUTING_KEY);
     }
 
     // ─────────────────────────────────────────
