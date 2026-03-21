@@ -8,7 +8,7 @@ import java.util.List;
 @Getter
 @Setter
 public class createCompanyDto {
-    private Long employeeId;
+    private String employeeId;
     private String companyName;
     private String location;
     private String industry;
@@ -16,9 +16,9 @@ public class createCompanyDto {
     private String website;
     private List<String> cultureTags;
 
-    //Getters
+    // Getters
 
-    public Long getEmployeeId() {
+    public String getEmployeeId() {
         return employeeId;
     }
 
@@ -46,9 +46,9 @@ public class createCompanyDto {
         return cultureTags;
     }
 
-    //Setters
+    // Setters
 
-    public void setEmployeeId(Long employeeId) {
+    public void setEmployeeId(String employeeId) {
         this.employeeId = employeeId;
     }
 
@@ -76,4 +76,3 @@ public class createCompanyDto {
         this.cultureTags = cultureTags;
     }
 }
-
