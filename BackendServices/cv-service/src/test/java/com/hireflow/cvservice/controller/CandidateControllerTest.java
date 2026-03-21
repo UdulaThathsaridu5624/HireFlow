@@ -36,7 +36,7 @@ class CandidateControllerTest {
             }
         };
 
-        CandidateController controller = new CandidateController(candidateService, applicationService);
+        CandidateController controller = new CandidateController(candidateService, applicationService, null);
 
         UUID userId = UUID.randomUUID();
         Jwt jwt = Jwt.withTokenValue("test-token")
