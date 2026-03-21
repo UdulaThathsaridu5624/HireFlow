@@ -10,7 +10,10 @@ import com.ctse.profileservice.dto.ValidateResponse;
 import com.ctse.profileservice.dto.createCompanyDto;
 import com.ctse.profileservice.entity.Company;
 import com.ctse.profileservice.service.AuthValidationService;
+import com.ctse.profileservice.service.AzureBlobStorageService;
 import com.ctse.profileservice.service.companyService;
+import org.springframework.web.multipart.MultipartFile;
+import java.io.IOException;
 
 @RestController
 @RequestMapping("/api/companies")
@@ -19,11 +22,13 @@ public class companyController {
 
     private final companyService companyService;
     private final AuthValidationService authValidationService;
+    private final AzureBlobStorageService azureBlobStorageService;
 
-    @PostMapping
+    @PostMapping(consumes = { "multipart/form-data" })
     public ResponseEntity<?> createCompany(
             @RequestHeader(value = "Authorization", required = false) String authHeader,
-            @RequestBody createCompanyDto request) {
+            @RequestPart("company") createCompanyDto request,
+            @RequestPart(value = "logo", required = false) MultipartFile logo) {
 
         // 1. Check Authorization header exists and has Bearer token
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
@@ -47,8 +52,19 @@ public class companyController {
                     .body("Only EMPLOYER accounts can create company profiles");
         }
 
-        // 4. Proceed with company creation
-        Company company = companyService.createCompany(request, request.getEmployeeId());
+        // 4. Handle Logo Upload
+        String logoUrl = null;
+        if (logo != null && !logo.isEmpty()) {
+            try {
+                logoUrl = azureBlobStorageService.uploadFile(logo);
+            } catch (IOException e) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                        .body("Failed to upload company logo: " + e.getMessage());
+            }
+        }
+
+        // 5. Proceed with company creation
+        Company company = companyService.createCompany(request, request.getEmployeeId(), logoUrl);
         return ResponseEntity.ok(company);
     }
 }
