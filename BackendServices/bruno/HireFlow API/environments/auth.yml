@@ -4,9 +4,15 @@ variables:
     name: Bearer_token
   - name: baseUrl
     value: http://localhost:8080/api/
+  - name: interviewBaseUrl
+    value: http://localhost:3000/
   - name: loginEmail
     value: ""
   - name: loginPassword
     value: ""
   - name: refreshToken
+    value: ""
+  - name: pipelineId
+    value: f5995ca6-493e-40a9-8c74-39a78aa0b228
+  - name: interviewId
     value: ""

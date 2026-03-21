@@ -1,0 +1,27 @@
+info:
+  name: Advance Pipeline Stage
+  type: http
+  seq: 4
+
+http:
+  method: PATCH
+  url: "{{interviewBaseUrl}}api/pipelines/{{pipelineId}}/stage"
+  headers:
+    - name: Content-Type
+      value: application/json
+    - name: Authorization
+      value: "Bearer {{Bearer_token}}"
+  body:
+    type: json
+    data: |-
+      {
+        "stage": "SCREENING",
+        "notes": "Moving to screening stage"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

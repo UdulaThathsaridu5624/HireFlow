@@ -1,0 +1,41 @@
+info:
+  name: Schedule Interview
+  type: http
+  seq: 5
+
+http:
+  method: POST
+  url: "{{interviewBaseUrl}}api/interviews"
+  headers:
+    - name: Content-Type
+      value: application/json
+    - name: Authorization
+      value: "Bearer {{Bearer_token}}"
+  body:
+    type: json
+    data: |-
+      {
+        "applicationId": "app-001",
+        "scheduledAt": "2026-04-01T10:00:00Z",
+        "durationMinutes": 60,
+        "format": "ONLINE",
+        "meetingLink": "https://meet.google.com/test-link",
+        "notes": "Technical interview round 1"
+      }
+  auth: inherit
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        if (res.getStatus() === 201) {
+          const body = res.getBody();
+          if (body.id) bru.setVar("interviewId", body.id);
+          console.log("Interview ID saved:", body.id);
+        }
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

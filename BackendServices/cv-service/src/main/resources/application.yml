@@ -1,0 +1,46 @@
+server:
+  port: ${SERVER_PORT:8081}
+
+spring:
+  application:
+    name: cv-service
+
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/postgres}
+    username: ${DB_USER:postgres}
+    password: ${DB_PASSWORD:postgres}
+    driver-class-name: org.postgresql.Driver
+
+  rabbitmq:
+    host: ${RABBITMQ_HOST:localhost}
+    port: ${RABBITMQ_PORT:5672}
+    username: ${RABBITMQ_USERNAME:${RABBITMQ_USER:guest}}
+    password: ${RABBITMQ_PASSWORD:guest}
+    virtual-host: ${RABBITMQ_VHOST:/}
+    ssl:
+      enabled: ${RABBITMQ_SSL_ENABLED:false}
+
+  jpa:
+    hibernate:
+      ddl-auto: none
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+app:
+  security:
+    jwt-secret: ${JWT_SECRET:change-me-to-a-long-shared-secret}
+  job-service:
+    enabled: ${JOB_SERVICE_ENABLED:false}
+    base-url: ${JOB_SERVICE_BASE_URL:http://localhost:8082}
+    open-path: ${JOB_SERVICE_OPEN_PATH:/api/jobs/{jobId}/open}
+  messaging:
+    exchange: ${APP_MESSAGING_EXCHANGE:hireflow.exchange}
+    application-forwarded-routing-key: ${APP_MESSAGING_APPLICATION_FORWARDED_ROUTING_KEY:application.forwarded}
+
+logging:
+  level:
+    org.springframework.jdbc: DEBUG
+    com.zaxxer.hikari: DEBUG
+    org.springframework.boot.context.config: DEBUG
